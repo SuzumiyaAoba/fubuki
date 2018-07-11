@@ -9,27 +9,29 @@ import (
 type Kind int
 
 const (
-	ILLEGAL Kind = iota
-	BACKSLASH
-	LAMBDA
-	LPAREN
-	RPAREN
-	DOT
-	SEMICOLON
-	COLON_EQUAL
+	Illegal Kind = iota
+	Ident
+	Backslash
+	Lambda
+	LParen
+	RParen
+	Dot
+	Semicolon
+	ColonEqual
 	EOF
 )
 
 var tokenTable = [...]string{
-	ILLEGAL:     "ILLEGAL",
-	BACKSLASH:   "\\",
-	LAMBDA:      "λ",
-	LPAREN:      "(",
-	RPAREN:      ")",
-	DOT:         ".",
-	SEMICOLON:   ";",
-	COLON_EQUAL: ":=",
-	EOF:         "EOF",
+	Illegal:    "ILLEGAL",
+	Ident:      "IDENT",
+	Backslash:  "\\",
+	Lambda:     "λ",
+	LParen:     "(",
+	RParen:     ")",
+	Dot:        ".",
+	Semicolon:  ";",
+	ColonEqual: ":=",
+	EOF:        "EOF",
 }
 
 type Token struct {
