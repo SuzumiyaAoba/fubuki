@@ -6,7 +6,11 @@ SRCS := \
 	ast/printer.go \
 	syntax/lexer.go \
 	syntax/grammar.go \
-	syntax/parser.go
+	syntax/parser.go \
+	lambda/id.go \
+	lambda/alpha.go \
+	lambda/beta.go \
+	lambda/term.go
 
 all: build
 

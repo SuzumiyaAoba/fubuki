@@ -7,12 +7,11 @@ import (
 )
 
 func makeAbs(idents []*ast.Var, body ast.Expr) ast.Expr {
-	return body
-	/* if len(idents) == 0 { */
-	/* 	return body */
-	/* } */
-	/* ident := idents[0] */
-	/* return &ast.Abs{ident.Token, ident.Symbol, makeAbs(ident[1:], body)} */
+	if len(idents) == 0 {
+		return body
+	}
+	ident := idents[0]
+	return &ast.Abs{ident.Token, ident, makeAbs(idents[1:], body)}
 }
 %}
 
@@ -50,8 +49,7 @@ program: stmts {
            yylex.(*pseudoLexer).result = tree
          }
 
-stmts:            { $$ = []ast.Expr{} }
-     | stmt       { $$ = []ast.Expr{$1} }
+stmts: stmt       { $$ = []ast.Expr{$1} }
      | stmt stmts { $$ = append([]ast.Expr{$1}, $2[0:]...) }
 
 stmt: Ident ColonEqual expr Semicolon { $$ = &ast.Def{$1, $1.Value(), $3} }
@@ -62,7 +60,7 @@ expr: term { $$ = $1 }
 
 term: variable { $$ = $1 }
     | Lambda variables Dot expr {
-      $$ = &ast.Abs{$1, $2[0].Symbol, makeAbs($2[1:], $4)}
+      $$ = &ast.Abs{$1, $2[0], makeAbs($2[1:], $4)}
     }
     | LParen expr RParen { $$ = $2 }
 
@@ -74,5 +72,5 @@ variables:
     $$ = append([]*ast.Var{$1}, $2[0:]...)
   }
 
-variable: Ident { $$ = &ast.Var{$1, $1.Value(), 0} }
+variable: Ident { $$ = &ast.Var{$1, $1.Value()} }
 

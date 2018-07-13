@@ -22,11 +22,10 @@ type (
 	Var struct {
 		Token  *token.Token
 		Symbol string
-		Id     int
 	}
 	Abs struct {
 		StartToken *token.Token
-		Variable   string
+		Var        *Var
 		Body       Expr
 	}
 	App struct {
@@ -73,11 +72,11 @@ func (e *Def) End() locerr.Pos {
 }
 
 func (e *Var) Name() string {
-	return fmt.Sprintf("Var (%s#%d)", e.Symbol, e.Id)
+	return fmt.Sprintf("Var (%s)", e.Symbol)
 }
 
 func (e *Abs) Name() string {
-	return fmt.Sprintf("Abs (%s, %s)", e.Variable, e.Body.Name())
+	return fmt.Sprintf("Abs (%s, %s)", e.Var.Name(), e.Body.Name())
 }
 
 func (e *App) Name() string {
