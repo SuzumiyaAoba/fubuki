@@ -155,7 +155,7 @@ func isDigit(r rune) bool {
 }
 
 func eatIdent(l *Lexer) bool {
-	if !(isLetter(l.top) || isDigit(l.top)) {
+	if !(isLetter(l.top) || isDigit(l.top) || l.top == '#') {
 		l.expected("letter for head character of identifer", l.top)
 		return false
 	}

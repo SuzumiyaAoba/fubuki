@@ -54,6 +54,8 @@ stmts: stmt       { $$ = []ast.Expr{$1} }
 
 stmt: Ident ColonEqual expr Semicolon { $$ = &ast.Def{$1, $1.Value(), $3} }
     | expr Semicolon { $$ = $1; }
+    | Ident ColonEqual expr { $$ = &ast.Def{$1, $1.Value(), $3} }
+    | expr {$$ = $1; }
 
 expr: term { $$ = $1 }
     | expr term { $$ = &ast.App{$1, $2} }

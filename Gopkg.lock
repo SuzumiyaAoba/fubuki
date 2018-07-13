@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:454adc7f974228ff789428b6dc098638c57a64aa0718f0bd61e53d3cd39d7a75"
+  name = "github.com/chzyer/readline"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2972be24d48e78746da79ba8e24e8b488c9880de"
+
+[[projects]]
   digest = "1:865079840386857c809b72ce300be7580cb50d3d3129ce11bf9aa6ca2bc1934a"
   name = "github.com/fatih/color"
   packages = ["."]
@@ -44,6 +52,9 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/rhysd/locerr"]
+  input-imports = [
+    "github.com/chzyer/readline",
+    "github.com/rhysd/locerr",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

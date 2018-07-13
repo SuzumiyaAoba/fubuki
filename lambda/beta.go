@@ -44,9 +44,8 @@ func BetaIn(env Env, term Term) Term {
 	return term
 }
 
-func Beta(terms []Term) []Term {
+func Beta(env Env, terms []Term) []Term {
 	beta := make([]Term, len(terms))
-	env := make(Env)
 	for idx, term := range terms {
 		beta[idx] = BetaIn(env, term)
 	}
