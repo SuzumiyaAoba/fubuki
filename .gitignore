@@ -18,6 +18,9 @@
 
 # End of https://www.gitignore.io/api/go
 
+# dep
+vendor/
+
 fubuki
 y.output
 syntax/grammar.go
