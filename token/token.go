@@ -11,7 +11,6 @@ type Kind int
 const (
 	Illegal Kind = iota
 	Ident
-	Backslash
 	Lambda
 	LParen
 	RParen
@@ -24,7 +23,6 @@ const (
 var tokenTable = [...]string{
 	Illegal:    "ILLEGAL",
 	Ident:      "IDENT",
-	Backslash:  "\\",
 	Lambda:     "λ",
 	LParen:     "(",
 	RParen:     ")",

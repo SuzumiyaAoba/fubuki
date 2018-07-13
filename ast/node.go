@@ -1,13 +1,15 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/SuzumiyaAoba/fubuki/token"
 
 	"github.com/rhysd/locerr"
 )
 
 type AST struct {
-	Root Expr
+	Root []Expr
 }
 
 type Expr interface {
@@ -16,33 +18,24 @@ type Expr interface {
 	Name() string
 }
 
-type Symbol struct {
-	Name string
-	Id   int
-}
-
-func NewSymbol(name string) *Symbol {
-	return &Symbol{name, 0}
-}
-
 type (
 	Var struct {
 		Token  *token.Token
-		Symbol *Symbol
+		Symbol string
+		Id     int
 	}
 	Abs struct {
 		StartToken *token.Token
-		Symbol     *Symbol
+		Variable   string
 		Body       Expr
 	}
-	Apply struct {
-		StartToken *token.Token
-		Lexp       Expr
-		Rexp       Expr
+	App struct {
+		Lexp Expr
+		Rexp Expr
 	}
 	Def struct {
 		StartToken *token.Token
-		Symbol     *Symbol
+		Symbol     string
 		Bound      Expr
 	}
 )
@@ -63,12 +56,12 @@ func (e *Abs) End() locerr.Pos {
 	return e.StartToken.End
 }
 
-func (e *Apply) Pos() locerr.Pos {
-	return e.StartToken.Start
+func (e *App) Pos() locerr.Pos {
+	return e.Lexp.Pos()
 }
 
-func (e *Apply) End() locerr.Pos {
-	return e.StartToken.End
+func (e *App) End() locerr.Pos {
+	return e.Rexp.End()
 }
 
 func (e *Def) Pos() locerr.Pos {
@@ -77,4 +70,20 @@ func (e *Def) Pos() locerr.Pos {
 
 func (e *Def) End() locerr.Pos {
 	return e.StartToken.End
+}
+
+func (e *Var) Name() string {
+	return fmt.Sprintf("Var (%s#%d)", e.Symbol, e.Id)
+}
+
+func (e *Abs) Name() string {
+	return fmt.Sprintf("Abs (%s, %s)", e.Variable, e.Body.Name())
+}
+
+func (e *App) Name() string {
+	return fmt.Sprintf("App (%s %s)", e.Lexp.Name(), e.Rexp.Name())
+}
+
+func (e *Def) Name() string {
+	return fmt.Sprintf("Def (%s, %s)", e.Symbol, e.Bound.Name())
 }
