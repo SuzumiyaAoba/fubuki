@@ -1,1 +1,1 @@
-# Fubuki :fox: :cat:
+# Fubuki :cat:
