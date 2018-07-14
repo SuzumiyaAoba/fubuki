@@ -200,7 +200,10 @@ func lexHyphenMinus(l *Lexer) stateFn {
 		l.expected("comment --", l.top)
 		return nil
 	}
-	l.eat()
+
+	for l.top != '\n' && !l.eof {
+		l.eat()
+	}
 
 	return lex
 }
