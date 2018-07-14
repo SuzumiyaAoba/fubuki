@@ -20,16 +20,18 @@ const (
 	EOF
 )
 
-var tokenTable = [...]string{
-	Illegal:    "ILLEGAL",
-	Ident:      "IDENT",
-	Lambda:     "λ",
-	LParen:     "(",
-	RParen:     ")",
-	Dot:        ".",
-	Semicolon:  ";",
-	ColonEqual: ":=",
-	EOF:        "EOF",
+var TokenTable = [...]string{
+	"EOF",
+	"Error",
+	"Unknown",
+	"illegal token",
+	"ident",
+	"λ",
+	"(",
+	")",
+	".",
+	";",
+	":=",
 }
 
 type Token struct {
@@ -42,7 +44,7 @@ type Token struct {
 func (tok *Token) String() string {
 	return fmt.Sprintf(
 		"<%s:%s>(%d:%d:%d-%d:%d:%d)",
-		tokenTable[tok.Kind],
+		TokenTable[tok.Kind],
 		tok.Value(),
 		tok.Start.Line, tok.Start.Column, tok.Start.Offset,
 		tok.End.Line, tok.End.Column, tok.End.Offset)

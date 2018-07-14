@@ -4,14 +4,21 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/SuzumiyaAoba/fubuki/lambda"
 	"github.com/SuzumiyaAoba/fubuki/syntax"
+	"github.com/fatih/color"
 
 	"github.com/rhysd/locerr"
 
 	"github.com/chzyer/readline"
+)
+
+var (
+	bold = color.New(color.Bold)
+	red  = color.New(color.FgRed)
 )
 
 func listFiles(path string) func(string) []string {
@@ -76,21 +83,29 @@ func main() {
 		case line == ":exit":
 			goto exit
 		case line == ":help":
+		case strings.HasPrefix(line, ":"):
+			cmd := strings.Split(line, " ")
+			red.Fprint(os.Stdout, "Error: ")
+			bold.Fprintf(os.Stdout, "unknown command: %s\n\n", cmd[0])
 		case line == "":
 		default:
-			t, _ := syntax.Parse(&locerr.Source{
-				"<stdin>",
-				[]byte(line),
-				false,
+			t, err := syntax.Parse(&locerr.Source{
+				Path:   "<stdin>",
+				Code:   []byte(line),
+				Exists: false,
 			})
-			terms := lambda.AstToTerms(t)
-			alpha := lambda.Alpha(terms)
-			beta := lambda.Beta(env, alpha)
-			for _, term := range beta {
-				id := fmt.Sprintf("#%d", resID)
-				fmt.Printf("%s: %s\n\n", id, lambda.Readable(term))
-				env[id] = term
-				resID++
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				terms := lambda.AstToTerms(t)
+				alpha := lambda.Alpha(terms)
+				beta := lambda.Beta(env, alpha)
+				for _, term := range beta {
+					id := fmt.Sprintf("#%d", resID)
+					fmt.Printf("%s: %s\n\n", id, lambda.Readable(term))
+					env[id] = term
+					resID++
+				}
 			}
 		}
 	}

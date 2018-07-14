@@ -54,6 +54,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/chzyer/readline",
+    "github.com/fatih/color",
     "github.com/rhysd/locerr",
   ]
   solver-name = "gps-cdcl"

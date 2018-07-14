@@ -71,6 +71,7 @@ func Parse(src *locerr.Source) (*ast.AST, error) {
 
 func ParseTokens(tokens chan token.Token) (*ast.AST, error) {
 	yyErrorVerbose = true
+	yyToknames = token.TokenTable
 
 	l := &pseudoLexer{tokens: tokens}
 	ret := yyParse(l)
