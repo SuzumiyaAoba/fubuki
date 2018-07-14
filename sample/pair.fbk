@@ -1,0 +1,9 @@
+true := \x y. x;
+false := \x y. y;
+
+-- pair is similar to `if`
+pair := \x y f. f x y;
+first := \p. p true;
+second := \p. p false;
+nil := \x. true;
+null := \p. p (\x y. false);
