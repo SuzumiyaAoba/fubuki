@@ -2,14 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:454adc7f974228ff789428b6dc098638c57a64aa0718f0bd61e53d3cd39d7a75"
-  name = "github.com/chzyer/readline"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "2972be24d48e78746da79ba8e24e8b488c9880de"
-
-[[projects]]
   digest = "1:865079840386857c809b72ce300be7580cb50d3d3129ce11bf9aa6ca2bc1934a"
   name = "github.com/fatih/color"
   packages = ["."]
@@ -34,6 +26,22 @@
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:e2d1d410fb367567c2b53ed9e2d719d3c1f0891397bb2fa49afd747cfbf1e8e4"
+  name = "github.com/mattn/go-runewidth"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
+  version = "v0.0.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f1da02f4db9d4448d14655eb0d3f6bcba03ea1894472c70361f846f3b0e90047"
+  name = "github.com/peterh/liner"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "8c1271fcf47f341a9e6771872262870e1ad7650c"
+
+[[projects]]
   branch = "master"
   digest = "1:39e9bfa76adb9ce0532fd78b180422b76b0722af8f291b83f3c7cc6ee2a21f1b"
   name = "github.com/rhysd/locerr"
@@ -53,8 +61,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/chzyer/readline",
     "github.com/fatih/color",
+    "github.com/peterh/liner",
     "github.com/rhysd/locerr",
   ]
   solver-name = "gps-cdcl"

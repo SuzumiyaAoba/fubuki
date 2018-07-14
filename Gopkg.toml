@@ -29,10 +29,6 @@
   branch = "master"
   name = "github.com/rhysd/locerr"
 
-[[constraint]]
-  branch = "master"
-  name = "github.com/chzyer/readline"
-
 [prune]
   go-tests = true
   unused-packages = true

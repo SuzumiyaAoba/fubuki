@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
+	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/SuzumiyaAoba/fubuki/lambda"
@@ -13,101 +14,148 @@ import (
 
 	"github.com/rhysd/locerr"
 
-	"github.com/chzyer/readline"
+	"github.com/peterh/liner"
 )
 
 var (
 	bold = color.New(color.Bold)
 	red  = color.New(color.FgRed)
+	blue = color.New(color.FgBlue)
+
+	version = "0.0.1"
+
+	resID   = 0
+	env     = make(lambda.Env)
+	history = filepath.Join(os.TempDir(), "fubuki.history")
 )
 
-func listFiles(path string) func(string) []string {
-	return func(line string) []string {
-		names := make([]string, 0)
-		files, _ := ioutil.ReadDir(path)
-		for _, f := range files {
-			names = append(names, f.Name())
+func binds() []string {
+	bind := make([]string, 0, len(env))
+	for k := range env {
+		if !strings.HasPrefix(k, "#") {
+			bind = append(bind, k)
 		}
-		return names
 	}
+	return bind
 }
 
-func filterInput(r rune) (rune, bool) {
-	switch r {
-	// block CtrlZ feature
-	case readline.CharCtrlZ:
-		return r, false
-	}
-	return r, true
-}
+func complete(line string, pos int) (string, []string, string) {
+	chunks := strings.Split(line, " ")
+	chunk := chunks[len(chunks)-1]
+	c := make([]string, 0)
 
-var completer = readline.NewPrefixCompleter(
-	readline.PcItem(":load",
-		readline.PcItemDynamic(listFiles("./")),
-	),
-	readline.PcItem(":exit"),
-)
+	for _, n := range binds() {
+		if strings.HasPrefix(n, chunk) {
+			c = append(c, n)
+		}
+	}
+
+	prefix := ""
+	if len(chunks) > 1 {
+		for i := 0; i < len(chunks)-1; i++ {
+			prefix += chunks[i] + " "
+		}
+	} else {
+		cmd := []string{":exit", ":help", ":env"}
+		for _, n := range cmd {
+			if strings.HasPrefix(n, chunk) {
+				c = append(c, n)
+			}
+		}
+	}
+
+	return prefix, c, string([]rune(line)[pos:])
+}
 
 func main() {
-	l, err := readline.NewEx(&readline.Config{
-		Prompt:          "\033[34mfubuki>\033[0m ",
-		HistoryFile:     "/tmp/fubuki.tmp",
-		AutoComplete:    completer,
-		InterruptPrompt: "^C",
-		EOFPrompt:       "exit",
+	welcome()
 
-		HistorySearchFold:   true,
-		FuncFilterInputRune: filterInput,
-	})
-	if err != nil {
-		panic(err)
+	prompt := liner.NewLiner()
+	defer prompt.Close()
+
+	prompt.SetCtrlCAborts(true)
+	prompt.SetTabCompletionStyle(liner.TabPrints)
+
+	prompt.SetWordCompleter(complete)
+
+	if f, err := os.Open(history); err == nil {
+		prompt.ReadHistory(f)
+		f.Close()
 	}
-	defer l.Close()
 
-	env := make(lambda.Env)
-	resID := 0
 	for {
-		line, err := l.Readline()
-		if err == readline.ErrInterrupt {
-			if len(line) == 0 {
-				break
-			} else {
-				continue
-			}
-		} else if err == io.EOF {
-			break
-		}
-
-		line = strings.TrimSpace(line)
-		switch {
-		case line == ":exit":
-			goto exit
-		case line == ":help":
-		case strings.HasPrefix(line, ":"):
-			cmd := strings.Split(line, " ")
-			red.Fprint(os.Stdout, "Error: ")
-			bold.Fprintf(os.Stdout, "unknown command: %s\n\n", cmd[0])
-		case line == "":
-		default:
-			t, err := syntax.Parse(&locerr.Source{
-				Path:   "<stdin>",
-				Code:   []byte(line),
-				Exists: false,
-			})
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				terms := lambda.AstToTerms(t)
-				alpha := lambda.Alpha(terms)
-				beta := lambda.Beta(env, alpha)
-				for _, term := range beta {
-					id := fmt.Sprintf("#%d", resID)
-					fmt.Printf("%s: %s\n\n", id, lambda.Readable(term))
-					env[id] = term
-					resID++
+		if line, err := prompt.Prompt("fubuki> "); err == nil {
+			switch {
+			case strings.HasPrefix(line, ":"):
+				cmd := strings.Split(line, " ")[0]
+				switch cmd {
+				case ":exit":
+					goto exit
+				case ":help":
+					// TODO
+				case ":env":
+					showEnv()
 				}
+			case line == "":
+				break
+			default:
+				prompt.AppendHistory(line)
+				eval(line)
 			}
+		} else if err == liner.ErrPromptAborted {
+			goto exit
+		} else if err == io.EOF {
+			goto exit
+		} else {
+			fmt.Println(err)
 		}
 	}
 exit:
+
+	if f, err := os.Create(history); err != nil {
+		log.Print("Error writing history file: ", err)
+	} else {
+		prompt.WriteHistory(f)
+		f.Close()
+	}
+}
+
+func welcome() {
+	fmt.Printf("Welcome to Fubuki %s\n", version)
+	fmt.Println("see https://github.com/SuzumiyaAoba/fubuki :help for help")
+	fmt.Println()
+}
+
+func showEnv() {
+	for k, v := range env {
+		fmt.Printf("%s := %s\n", k, lambda.Readable(v))
+	}
+	fmt.Println()
+}
+
+func exeCommand(line string) {
+	cmd := strings.Split(line, " ")
+	red.Fprint(os.Stdout, "Error: ")
+	bold.Fprintf(os.Stdout, "unknown command: %s\n\n", cmd[0])
+}
+
+func eval(line string) {
+	t, err := syntax.Parse(&locerr.Source{
+		Path:   "<stdin>",
+		Code:   []byte(line),
+		Exists: false,
+	})
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		terms := lambda.AstToTerms(t)
+		alpha := lambda.Alpha(terms)
+		beta := lambda.Beta(env, alpha)
+		for _, term := range beta {
+			id := fmt.Sprintf("#%d", resID)
+			fmt.Printf("%s: %s\n\n", id, lambda.Readable(term))
+			env[id] = term
+			resID++
+		}
+	}
 }
