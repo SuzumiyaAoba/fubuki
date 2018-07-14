@@ -18,9 +18,10 @@ import (
 )
 
 var (
-	bold = color.New(color.Bold)
-	red  = color.New(color.FgRed)
-	blue = color.New(color.FgBlue)
+	bold  = color.New(color.Bold)
+	red   = color.New(color.FgRed)
+	blue  = color.New(color.FgBlue)
+	green = color.New(color.FgGreen)
 
 	version = "0.0.1"
 
@@ -85,22 +86,33 @@ func main() {
 
 	for {
 		if line, err := prompt.Prompt("fubuki> "); err == nil {
+			line = strings.Trim(line, " \t")
+			if line != "" {
+				prompt.AppendHistory(line)
+			}
 			switch {
 			case strings.HasPrefix(line, ":"):
-				cmd := strings.Split(line, " ")[0]
-				switch cmd {
+				cmds := strings.Split(line, " ")
+				switch cmds[0] {
 				case ":exit":
 					goto exit
-				case ":help":
+				case ":help", ":h":
 					// TODO
-				case ":env":
+				case ":env", ":e":
 					showEnv()
+				case ":load", ":l":
+					loadFiles(cmds[1:])
+				default:
+					unknownCommand(cmds[0])
 				}
 			case line == "":
 				break
 			default:
-				prompt.AppendHistory(line)
-				eval(line)
+				eval(&locerr.Source{
+					Path:   "<stdin>",
+					Code:   []byte(line),
+					Exists: false,
+				}, false)
 			}
 		} else if err == liner.ErrPromptAborted {
 			goto exit
@@ -133,29 +145,44 @@ func showEnv() {
 	fmt.Println()
 }
 
-func exeCommand(line string) {
-	cmd := strings.Split(line, " ")
-	red.Fprint(os.Stdout, "Error: ")
-	bold.Fprintf(os.Stdout, "unknown command: %s\n\n", cmd[0])
+func loadFiles(paths []string) {
+	for _, path := range paths {
+		s, err := locerr.NewSourceFromFile(path)
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println()
+		} else {
+			err := eval(s, true)
+			if err == nil {
+				green.Fprintf(os.Stdout, "success: ")
+				fmt.Printf("load %s\n\n", path)
+			}
+		}
+	}
 }
 
-func eval(line string) {
-	t, err := syntax.Parse(&locerr.Source{
-		Path:   "<stdin>",
-		Code:   []byte(line),
-		Exists: false,
-	})
+func unknownCommand(cmd string) {
+	red.Fprint(os.Stdout, "Error: ")
+	bold.Fprintf(os.Stdout, "unknown command: %s\n\n", cmd)
+}
+
+func eval(source *locerr.Source, silent bool) error {
+	t, err := syntax.Parse(source)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	} else {
 		terms := lambda.AstToTerms(t)
 		alpha := lambda.Alpha(terms)
 		beta := lambda.Beta(env, alpha)
 		for _, term := range beta {
-			id := fmt.Sprintf("#%d", resID)
-			fmt.Printf("%s: %s\n\n", id, lambda.Readable(term))
-			env[id] = term
-			resID++
+			if !silent {
+				id := fmt.Sprintf("#%d", resID)
+				fmt.Printf("%s: %s\n\n", id, lambda.Readable(term))
+				env[id] = term
+				resID++
+			}
 		}
 	}
+	return nil
 }
