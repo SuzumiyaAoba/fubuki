@@ -1,16 +1,16 @@
 SRCS := \
-	main.go \
+	syntax/grammar.go \
+	syntax/lexer.go \
+	syntax/parser.go \
 	token/token.go \
 	ast/node.go \
 	ast/visitor.go \
 	ast/printer.go \
-	syntax/lexer.go \
-	syntax/grammar.go \
-	syntax/parser.go \
 	lambda/id.go \
 	lambda/alpha.go \
 	lambda/beta.go \
-	lambda/term.go
+	lambda/term.go \
+	main.go
 
 all: build
 
