@@ -1,5 +1,5 @@
 SRCS := \
-	main.go \
+	cmd/fubuki/main.go \
 	token/token.go \
 	ast/node.go \
 	ast/visitor.go \
@@ -21,7 +21,7 @@ parser: syntax/grammar.go
 build: fubuki
 
 fubuki: $(SRCS)
-	go build;
+	cd cmd/fubuki && go build;
 
 syntax/grammar.go: syntax/grammar.go.y
 	go get golang.org/x/tools/cmd/goyacc

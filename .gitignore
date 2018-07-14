@@ -21,6 +21,6 @@
 # dep
 vendor/
 
-fubuki
+./fubuki
 y.output
 syntax/grammar.go
