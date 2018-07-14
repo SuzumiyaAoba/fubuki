@@ -16,9 +16,9 @@ SRCS := \
 
 all: build
 
-parser: syntax/grammar.go
+build: parser fubuki
 
-build: fubuki
+parser: syntax/grammar.go
 
 fubuki: $(SRCS)
 	go build;
