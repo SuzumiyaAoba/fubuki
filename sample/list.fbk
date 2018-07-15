@@ -1,0 +1,11 @@
+-- Represent the list using right fold
+--   see https://en.wikipedia.org/wiki/Church_encoding#Represent_the_list_using_right_fold
+
+true := \x y. x;
+false := \x y. y;
+
+nil   := \c n. n;
+isnil := \l. l (\h t. false) true;
+cons  := \h t c n. c h (t c n);
+head  := \l. l (\h t. h) false;
+tail  := \l c n. l (\h t g. g h (t c)) (\t. n) (\h t. t);
