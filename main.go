@@ -103,16 +103,6 @@ func complete(line string, pos int) (string, []string, string) {
 				break
 			}
 		}
-		// for i := 0; i < len(chunks)-1; i++ {
-		// 	prefix += chunks[i] + " "
-		// }
-		// parent := chunks[len(chuns)-1]
-		// for i := len(parent)-1; i >= 0; i++ {
-		// 	if parent[i] == '/' {
-
-		// 	}
-		// }
-		// prefix += parent
 	} else {
 		for k := range commands {
 			if strings.HasPrefix(k, chunk) {
