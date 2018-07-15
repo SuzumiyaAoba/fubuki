@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -41,6 +42,32 @@ var (
 	}
 )
 
+func listFiles(input string) []string {
+	prefix := input
+	for i := len(input); i > 0; i-- {
+		if input[i-1] == '/' {
+			prefix = input[i:len(input)]
+			break
+		}
+	}
+	path := input[:len(input)-len(prefix)]
+	if !strings.HasPrefix(path, "/") {
+		path = "./" + path
+	}
+	names := make([]string, 0)
+	files, _ := ioutil.ReadDir(path)
+	for _, f := range files {
+		if strings.HasPrefix(f.Name(), prefix) {
+			name := f.Name()
+			if f.IsDir() {
+				name += "/"
+			}
+			names = append(names, name)
+		}
+	}
+	return names
+}
+
 func binds() []string {
 	bind := make([]string, 0, len(env))
 	for k := range env {
@@ -64,14 +91,32 @@ func complete(line string, pos int) (string, []string, string) {
 
 	prefix := ""
 	if len(chunks) > 1 {
-		for i := 0; i < len(chunks)-1; i++ {
-			prefix += chunks[i] + " "
+		switch chunks[0] {
+		case ":load", ":l":
+			input := chunks[len(chunks)-1]
+			c = append(c, listFiles(input)...)
 		}
+		prefix = line
+		for i := len(prefix) - 1; i >= 0; i-- {
+			if prefix[i] == ' ' || prefix[i] == '/' {
+				prefix = prefix[:i+1]
+				break
+			}
+		}
+		// for i := 0; i < len(chunks)-1; i++ {
+		// 	prefix += chunks[i] + " "
+		// }
+		// parent := chunks[len(chuns)-1]
+		// for i := len(parent)-1; i >= 0; i++ {
+		// 	if parent[i] == '/' {
+
+		// 	}
+		// }
+		// prefix += parent
 	} else {
-		cmd := []string{":exit", ":help", ":env", ":load"}
-		for _, n := range cmd {
-			if strings.HasPrefix(n, chunk) {
-				c = append(c, n)
+		for k := range commands {
+			if strings.HasPrefix(k, chunk) {
+				c = append(c, k)
 			}
 		}
 	}
@@ -97,7 +142,7 @@ func main() {
 
 	for {
 		if line, err := prompt.Prompt("fubuki> "); err == nil {
-			line = strings.Trim(line, " \t")
+			line = strings.TrimSpace(line)
 			if line != "" {
 				prompt.AppendHistory(line)
 			}
