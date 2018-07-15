@@ -16,12 +16,14 @@ $ fubuki
 
 ### Command
 
-| command      | option           |                                       |
------------------|----------------------|----------------------------------------------
-| `:exit`        |                     | exit repl                                   |
-| `:load`, `:l` |                      | load external file                          |
-| `:env`         | `asc`, `desc`, `#` | show environment                            |
-| `:show`, `:s` |                      | show lambda expression if it in environment |
+Following commands can be used in REPL.
+
+```
+:exit
+:load [<path>...]
+:env [asc] [desc] [#]
+:show
+```
 
 ## Example
 
@@ -61,7 +63,7 @@ fubuki> #0 a
 fubuki> #0 a b
 #2: a
 
-fubuki> :l sample/nat.fbk sample/bool.fbk
+fubuki> :load sample/nat.fbk sample/bool.fbk
 Success: load sample/nat.fbk
 Success: load sample/bool.fbk
 
@@ -119,5 +121,9 @@ sub := (λm n.(n pred) m)
 succ := (λn f x.f ((n f) x))
 true := (λx y.x)
 
-fubuki> 
+fubuki> :show hoge
+Not found: hoge
+
+fubuki> :show true
+Exists: true := (λx y.x)
 ```
