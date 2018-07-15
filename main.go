@@ -78,40 +78,49 @@ func binds() []string {
 	return bind
 }
 
-func complete(line string, pos int) (string, []string, string) {
-	chunks := strings.Split(line, " ")
-	chunk := chunks[len(chunks)-1]
+func completer(line string, pos int) (string, []string, string) {
+	chunks := strings.Fields(line)
+	if len(chunks) == 0 {
+		chunks = append(chunks, "")
+	}
+	fst := chunks[0]
 	c := make([]string, 0)
 
-	for _, n := range binds() {
-		if strings.HasPrefix(n, chunk) {
-			c = append(c, n)
-		}
-	}
-
-	prefix := ""
-	if len(chunks) > 1 {
-		switch chunks[0] {
-		case ":load", ":l":
-			input := chunks[len(chunks)-1]
-			c = append(c, listFiles(input)...)
-		}
-		prefix = line
-		for i := len(prefix) - 1; i >= 0; i-- {
-			if prefix[i] == ' ' || prefix[i] == '/' {
-				prefix = prefix[:i+1]
-				break
-			}
-		}
-	} else {
+	start := strings.HasSuffix(line, " ")
+	if len(chunks) <= 1 && !start {
 		for k := range commands {
-			if strings.HasPrefix(k, chunk) {
-				c = append(c, k)
+			if strings.HasPrefix(k, fst) {
+				c = append(c, k+" ")
 			}
 		}
 	}
 
-	return prefix, c, string([]rune(line)[pos:])
+	target := chunks[len(chunks)-1]
+	if start {
+		target = ""
+	}
+	switch fst {
+	case ":load", ":l":
+		c = append(c, listFiles(target)...)
+	case ":exit", ":help":
+	default:
+		for _, n := range binds() {
+			if strings.HasPrefix(n, target) {
+				c = append(c, n+" ")
+			}
+		}
+	}
+
+	input := []rune(line)
+	prefix := ""
+	for i := len(input) - 1; i >= 0; i-- {
+		if input[i] == ' ' || input[i] == '/' {
+			prefix = string(input[:i+1])
+			break
+		}
+	}
+
+	return string(prefix), c, string([]rune(line)[pos:])
 }
 
 func main() {
@@ -123,7 +132,7 @@ func main() {
 	prompt.SetCtrlCAborts(true)
 	prompt.SetTabCompletionStyle(liner.TabPrints)
 
-	prompt.SetWordCompleter(complete)
+	prompt.SetWordCompleter(completer)
 
 	if f, err := os.Open(history); err == nil {
 		prompt.ReadHistory(f)
@@ -140,7 +149,7 @@ func main() {
 			case strings.HasPrefix(line, ":exit"):
 				goto exit
 			case strings.HasPrefix(line, ":"): // command
-				cmds := strings.Split(line, " ")
+				cmds := strings.Fields(line)
 				exeCommand(cmds)
 			case line == "": // ignore
 				break
