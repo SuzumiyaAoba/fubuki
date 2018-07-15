@@ -3,7 +3,7 @@
 ## Installation
 
 ```
-go get github.com/SuzumiyaAoba/fubuki
+$ go get github.com/SuzumiyaAoba/fubuki
 ```
 
 ## Grammar
@@ -11,12 +11,12 @@ go get github.com/SuzumiyaAoba/fubuki
 ## Usage
 
 ```
-fubuki
+$ fubuki
 ```
 
 ### Command
 
-| command      | options          |                                       |
+| command      | option           |                                       |
 -----------------|----------------------|----------------------------------------------
 | `:exit`        |                     | exit repl                                   |
 | `:load`, `:l` |                      | load external file                          |
