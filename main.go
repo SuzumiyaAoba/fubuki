@@ -268,7 +268,26 @@ func exit(options []string) {
 }
 
 func help(options []string) {
-	// TODO
+	fmt.Println("Usage:")
+	fmt.Println("    <expr> | <commadns>")
+	fmt.Println()
+	fmt.Println("Grammar:")
+	fmt.Println("    <expr>  := <term> | <def>")
+	fmt.Println("    <term>  := <var> | <abs> | <app>")
+	fmt.Println("    <ident> := [#0-9a-zA-Z_][0-9a-zA-Z_]*")
+	fmt.Println("    <var>   := <ident>")
+	fmt.Println("    <vars>  := <var> <vars>*")
+	fmt.Println("    <abs>   := '\\'<vars>'.'<term>")
+	fmt.Println("    <app>   := (<term> <term>)")
+	fmt.Println("    <def>   := <ident> \":=\" <term>")
+	fmt.Println()
+	fmt.Println("The commands are:")
+	fmt.Println("    :exit                 exit REPL")
+	fmt.Println("    :load [<path>...]     load file              (short :l)")
+	fmt.Println("    :env [asc] [desc] [#] show environment")
+	fmt.Println("    :show [<name>]        show lambda expression (short :s)")
+	fmt.Println("    :help                 show help              (short :h)")
+	fmt.Println()
 }
 
 func unknownCommand(cmd string) {
