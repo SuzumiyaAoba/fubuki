@@ -1,5 +1,7 @@
 # Fubuki :cat:
 
+Fubuki is an implementation of λ-calculus interpreter in Golang.
+
 ## Installation
 
 ```
@@ -7,6 +9,19 @@ $ go get github.com/SuzumiyaAoba/fubuki
 ```
 
 ## Grammar
+
+The grammar of λ-expressions in Fubuki is following (not correct, but enough).
+
+```
+<expr>  := <term> | <def>
+<term>  := <var> | <abs> | <app> | '('<term>')'
+<ident> := [#0-9a-zA-Z_][0-9a-zA-Z_]*
+<var>   := <ident>
+<vars>  := <var> <vars>*
+<abs>   := '\'<vars>'.'<term>
+<app>   := <term> <term>
+<def>   := <ident> ":=" <term>
+```
 
 ## Usage
 
@@ -19,10 +34,11 @@ $ fubuki
 Following commands can be used in REPL.
 
 ```
-:exit
-:load [<path>...]
-:env [asc] [desc] [#]
-:show
+:exit                 exit REPL
+:load [<path>...]     load file              (short :l)
+:env [asc] [desc] [#] show environment
+:show [<name>]        show lambda expression (short :s)
+:help                 show help              (short :h)
 ```
 
 ## Example
