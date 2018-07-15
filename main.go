@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/SuzumiyaAoba/fubuki/lambda"
@@ -25,9 +26,19 @@ var (
 
 	version = "0.0.1"
 
-	resID   = 0
-	env     = make(lambda.Env)
-	history = filepath.Join(os.TempDir(), "fubuki.history")
+	resID    = 0
+	env      = make(lambda.Env)
+	history  = filepath.Join(os.TempDir(), "fubuki.history")
+	commands = map[string]func([]string){
+		":load": loadFiles,
+		":l":    loadFiles,
+		":env":  showEnv,
+		":help": help,
+		":h":    help,
+		":exit": exit,
+		":show": show,
+		":s":    show,
+	}
 )
 
 func binds() []string {
@@ -57,7 +68,7 @@ func complete(line string, pos int) (string, []string, string) {
 			prefix += chunks[i] + " "
 		}
 	} else {
-		cmd := []string{":exit", ":help", ":env"}
+		cmd := []string{":exit", ":help", ":env", ":load"}
 		for _, n := range cmd {
 			if strings.HasPrefix(n, chunk) {
 				c = append(c, n)
@@ -91,23 +102,14 @@ func main() {
 				prompt.AppendHistory(line)
 			}
 			switch {
-			case strings.HasPrefix(line, ":"):
+			case strings.HasPrefix(line, ":exit"):
+				goto exit
+			case strings.HasPrefix(line, ":"): // command
 				cmds := strings.Split(line, " ")
-				switch cmds[0] {
-				case ":exit":
-					goto exit
-				case ":help", ":h":
-					// TODO
-				case ":env", ":e":
-					showEnv()
-				case ":load", ":l":
-					loadFiles(cmds[1:])
-				default:
-					unknownCommand(cmds[0])
-				}
-			case line == "":
+				exeCommand(cmds)
+			case line == "": // ignore
 				break
-			default:
+			default: // evaluate lambda expressions
 				eval(&locerr.Source{
 					Path:   "<stdin>",
 					Code:   []byte(line),
@@ -138,15 +140,47 @@ func welcome() {
 	fmt.Println()
 }
 
-func showEnv() {
-	for k, v := range env {
-		fmt.Printf("%s := %s\n", k, lambda.Readable(v))
+func exeCommand(chunks []string) {
+	cmd := chunks[0]
+	options := make([]string, 0, len(chunks)-1)
+	for _, c := range chunks[1:] {
+		if c != "" {
+			options = append([]string{c}, options...)
+		}
+	}
+	reverseStrings(options)
+
+	if exe, ok := commands[cmd]; ok {
+		exe(options)
+	} else {
+		unknownCommand(cmd)
+	}
+}
+
+func showEnv(options []string) {
+	keys := make([]string, 0, len(env))
+	for k := range env {
+		keys = append(keys, k)
+	}
+
+	if len(options) > 0 {
+		switch options[0] {
+		case "asc":
+			sort.Strings(keys)
+		case "desc":
+			sort.Strings(keys)
+			reverseStrings(keys)
+		}
+	}
+
+	for _, key := range keys {
+		fmt.Printf("%s := %s\n", key, lambda.Readable(env[key]))
 	}
 	fmt.Println()
 }
 
-func loadFiles(paths []string) {
-	for _, path := range paths {
+func loadFiles(options []string) {
+	for _, path := range options {
 		s, err := locerr.NewSourceFromFile(path)
 		if err != nil {
 			fmt.Println(err)
@@ -154,11 +188,33 @@ func loadFiles(paths []string) {
 		} else {
 			err := eval(s, true)
 			if err == nil {
-				green.Fprintf(os.Stdout, "success: ")
-				fmt.Printf("load %s\n\n", path)
+				green.Fprintf(os.Stdout, "Success: ")
+				fmt.Printf("load %s\n", path)
 			}
 		}
 	}
+	fmt.Println()
+}
+
+func show(options []string) {
+	for _, bind := range options {
+		if term, ok := env[bind]; ok {
+			green.Fprint(os.Stdout, "Exists: ")
+			fmt.Printf("%s := %s\n", bind, lambda.Readable(term))
+		} else {
+			red.Fprint(os.Stdout, "Not found: ")
+			fmt.Println(bind)
+		}
+	}
+	fmt.Println()
+}
+
+func exit(options []string) {
+	// Do nothing
+}
+
+func help(options []string) {
+	// TODO
 }
 
 func unknownCommand(cmd string) {

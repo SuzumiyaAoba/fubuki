@@ -63,7 +63,7 @@ func AstToTerms(tree *ast.AST) []Term {
 	terms := make([]Term, 0)
 
 	for _, e := range tree.Root {
-		terms = append([]Term{ExprToTerm(e)}, terms[0:]...)
+		terms = append([]Term{ExprToTerm(e)}, terms...)
 	}
 
 	for i, j := 0, len(terms)-1; i < j; i, j = i+1, j-1 {
