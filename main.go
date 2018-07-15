@@ -43,10 +43,10 @@ var (
 )
 
 func listFiles(input string) []string {
-	prefix := input
+	prefix := []rune(input)
 	for i := len(input); i > 0; i-- {
 		if input[i-1] == '/' {
-			prefix = input[i:len(input)]
+			prefix = []rune(input[i:len(input)])
 			break
 		}
 	}
@@ -57,7 +57,7 @@ func listFiles(input string) []string {
 	names := make([]string, 0)
 	files, _ := ioutil.ReadDir(path)
 	for _, f := range files {
-		if strings.HasPrefix(f.Name(), prefix) {
+		if strings.HasPrefix(f.Name(), string(prefix)) {
 			name := f.Name()
 			if f.IsDir() {
 				name += "/"
@@ -208,18 +208,28 @@ func showEnv(options []string) {
 		keys = append(keys, k)
 	}
 
-	if len(options) > 0 {
-		switch options[0] {
-		case "asc":
-			sort.Strings(keys)
-		case "desc":
-			sort.Strings(keys)
-			reverseStrings(keys)
-		}
+	op := make(map[string]*struct{})
+	for _, o := range options {
+		op[o] = nil
 	}
 
-	for _, key := range keys {
-		fmt.Printf("%s := %s\n", key, lambda.Readable(env[key]))
+	if _, ok := op["asc"]; ok {
+		sort.Strings(keys)
+	} else if _, ok := op["desc"]; ok {
+		sort.Strings(keys)
+		reverseStrings(keys)
+	}
+
+	if _, ok := op["#"]; ok {
+		for _, key := range keys {
+			fmt.Printf("%s := %s\n", key, lambda.Readable(env[key]))
+		}
+	} else {
+		for _, key := range keys {
+			if !strings.HasPrefix(key, "#") {
+				fmt.Printf("%s := %s\n", key, lambda.Readable(env[key]))
+			}
+		}
 	}
 	fmt.Println()
 }
