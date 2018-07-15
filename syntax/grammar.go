@@ -87,13 +87,13 @@ var yyPgo = [...]int{
 }
 var yyR1 = [...]int{
 
-	0, 1, 2, 2, 3, 3, 3, 3, 4, 4,
-	5, 5, 5, 7, 7, 6,
+	0, 1, 1, 2, 2, 3, 3, 3, 3, 4,
+	4, 5, 5, 5, 7, 7, 6,
 }
 var yyR2 = [...]int{
 
-	0, 1, 1, 2, 4, 2, 3, 1, 1, 2,
-	1, 4, 3, 1, 2, 1,
+	0, 0, 1, 1, 2, 4, 2, 3, 1, 1,
+	2, 1, 4, 3, 1, 2, 1,
 }
 var yyChk = [...]int{
 
@@ -103,9 +103,9 @@ var yyChk = [...]int{
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 2, 15, 7, 8, 10, 0, 0,
-	3, 0, 5, 9, 15, 0, 13, 0, 6, 0,
-	14, 12, 4, 11,
+	1, -2, 2, 3, 16, 8, 9, 11, 0, 0,
+	4, 0, 6, 10, 16, 0, 14, 0, 7, 0,
+	15, 13, 5, 12,
 }
 var yyTok1 = [...]int{
 
@@ -457,93 +457,100 @@ yydefault:
 	switch yynt {
 
 	case 1:
-		yyDollar = yyS[yypt-1 : yypt+1]
+		yyDollar = yyS[yypt-0 : yypt+1]
 		//line syntax/grammar.go.y:47
 		{
-			tree := &ast.AST{yyDollar[1].nodes}
+			tree := &ast.AST{[]ast.Expr{}}
 			yylex.(*pseudoLexer).result = tree
 		}
 	case 2:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line syntax/grammar.go.y:52
+		//line syntax/grammar.go.y:51
+		{
+			tree := &ast.AST{yyDollar[1].nodes}
+			yylex.(*pseudoLexer).result = tree
+		}
+	case 3:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line syntax/grammar.go.y:56
 		{
 			yyVAL.nodes = []ast.Expr{yyDollar[1].node}
 		}
-	case 3:
+	case 4:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line syntax/grammar.go.y:53
+		//line syntax/grammar.go.y:57
 		{
 			yyVAL.nodes = append([]ast.Expr{yyDollar[1].node}, yyDollar[2].nodes[0:]...)
 		}
-	case 4:
+	case 5:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line syntax/grammar.go.y:55
+		//line syntax/grammar.go.y:59
 		{
 			yyVAL.node = &ast.Def{yyDollar[1].token, yyDollar[1].token.Value(), yyDollar[3].node}
-		}
-	case 5:
-		yyDollar = yyS[yypt-2 : yypt+1]
-		//line syntax/grammar.go.y:56
-		{
-			yyVAL.node = yyDollar[1].node
 		}
 	case 6:
-		yyDollar = yyS[yypt-3 : yypt+1]
-		//line syntax/grammar.go.y:57
-		{
-			yyVAL.node = &ast.Def{yyDollar[1].token, yyDollar[1].token.Value(), yyDollar[3].node}
-		}
-	case 7:
-		yyDollar = yyS[yypt-1 : yypt+1]
-		//line syntax/grammar.go.y:58
-		{
-			yyVAL.node = yyDollar[1].node
-		}
-	case 8:
-		yyDollar = yyS[yypt-1 : yypt+1]
+		yyDollar = yyS[yypt-2 : yypt+1]
 		//line syntax/grammar.go.y:60
 		{
 			yyVAL.node = yyDollar[1].node
 		}
-	case 9:
-		yyDollar = yyS[yypt-2 : yypt+1]
+	case 7:
+		yyDollar = yyS[yypt-3 : yypt+1]
 		//line syntax/grammar.go.y:61
+		{
+			yyVAL.node = &ast.Def{yyDollar[1].token, yyDollar[1].token.Value(), yyDollar[3].node}
+		}
+	case 8:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line syntax/grammar.go.y:62
+		{
+			yyVAL.node = yyDollar[1].node
+		}
+	case 9:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line syntax/grammar.go.y:64
+		{
+			yyVAL.node = yyDollar[1].node
+		}
+	case 10:
+		yyDollar = yyS[yypt-2 : yypt+1]
+		//line syntax/grammar.go.y:65
 		{
 			yyVAL.node = &ast.App{yyDollar[1].node, yyDollar[2].node}
 		}
-	case 10:
+	case 11:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line syntax/grammar.go.y:63
+		//line syntax/grammar.go.y:67
 		{
 			yyVAL.node = yyDollar[1].variable
 		}
-	case 11:
+	case 12:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line syntax/grammar.go.y:64
+		//line syntax/grammar.go.y:68
 		{
 			yyVAL.node = &ast.Abs{yyDollar[1].token, yyDollar[2].variables[0], makeAbs(yyDollar[2].variables[1:], yyDollar[4].node)}
 		}
-	case 12:
+	case 13:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line syntax/grammar.go.y:67
+		//line syntax/grammar.go.y:71
 		{
 			yyVAL.node = yyDollar[2].node
 		}
-	case 13:
+	case 14:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line syntax/grammar.go.y:70
+		//line syntax/grammar.go.y:74
 		{
 			yyVAL.variables = []*ast.Var{yyDollar[1].variable}
 		}
-	case 14:
+	case 15:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line syntax/grammar.go.y:73
+		//line syntax/grammar.go.y:77
 		{
 			yyVAL.variables = append([]*ast.Var{yyDollar[1].variable}, yyDollar[2].variables[0:]...)
 		}
-	case 15:
+	case 16:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line syntax/grammar.go.y:77
+		//line syntax/grammar.go.y:81
 		{
 			yyVAL.variable = &ast.Var{yyDollar[1].token, yyDollar[1].token.Value()}
 		}

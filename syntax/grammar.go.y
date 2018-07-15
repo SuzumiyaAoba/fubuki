@@ -44,7 +44,11 @@ func makeAbs(idents []*ast.Var, body ast.Expr) ast.Expr {
 
 %%
 
-program: stmts {
+program: {
+           tree := &ast.AST{[]ast.Expr{}}
+           yylex.(*pseudoLexer).result = tree
+         }
+       | stmts {
            tree := &ast.AST{$1}
            yylex.(*pseudoLexer).result = tree
          }
