@@ -27,6 +27,7 @@ func makeAbs(idents []*ast.Var, body ast.Expr) ast.Expr {
 %type<> program
 %type<nodes> stmts
 %type<node> stmt
+%type<node> define
 %type<node> expr
 %type<node> term
 %type<variable> variable
@@ -44,22 +45,19 @@ func makeAbs(idents []*ast.Var, body ast.Expr) ast.Expr {
 
 %%
 
-program: {
-           tree := &ast.AST{[]ast.Expr{}}
-           yylex.(*pseudoLexer).result = tree
-         }
-       | stmts {
+program: stmts {
            tree := &ast.AST{$1}
            yylex.(*pseudoLexer).result = tree
          }
 
-stmts: stmt       { $$ = []ast.Expr{$1} }
-     | stmt stmts { $$ = append([]ast.Expr{$1}, $2[0:]...) }
+stmts:                      { $$ = []ast.Expr{} }
+     | stmt                 { $$ = []ast.Expr{$1} }
+     | stmt Semicolon stmts { $$ = append([]ast.Expr{$1}, $3...) }
 
-stmt: Ident ColonEqual expr Semicolon { $$ = &ast.Def{$1, $1.Value(), $3} }
-    | expr Semicolon { $$ = $1; }
-    | Ident ColonEqual expr { $$ = &ast.Def{$1, $1.Value(), $3} }
-    | expr {$$ = $1; }
+stmt: define { $$ = $1 }
+    | expr   {$$ = $1; }
+
+define: Ident ColonEqual expr { $$ = &ast.Def{$1, $1.Value(), $3} }
 
 expr: term { $$ = $1 }
     | expr term { $$ = &ast.App{$1, $2} }
@@ -75,7 +73,7 @@ variables:
     $$ = []*ast.Var{$1}
   }
   | variable variables {
-    $$ = append([]*ast.Var{$1}, $2[0:]...)
+    $$ = append([]*ast.Var{$1}, $2...)
   }
 
 variable: Ident { $$ = &ast.Var{$1, $1.Value()} }
