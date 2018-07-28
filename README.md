@@ -23,6 +23,9 @@ The grammar of λ-expressions in Fubuki is following (not correct, but enough).
 <def>   := <ident> ":=" <term>
 ```
 
+## Evaluation strategy
+rightmost-innermost.
+
 ## Usage
 
 ```
