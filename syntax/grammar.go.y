@@ -72,8 +72,8 @@ variables:
   variable {
     $$ = []*ast.Var{$1}
   }
-  | variable variables {
-    $$ = append([]*ast.Var{$1}, $2...)
+  | variables variable {
+    $$ = append($1, $2)
   }
 
 variable: Ident { $$ = &ast.Var{$1, $1.Value()} }
