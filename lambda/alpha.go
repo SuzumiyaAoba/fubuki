@@ -1,6 +1,6 @@
 package lambda
 
-type Bind = map[string]int
+type Bind map[string]int
 
 func find(env Bind, x string) int {
 	if id, ok := env[x]; ok {

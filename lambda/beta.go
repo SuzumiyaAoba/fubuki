@@ -1,6 +1,6 @@
 package lambda
 
-type Env = map[string]Term
+type Env map[string]Term
 
 func subst(term Term, x *Var, s Term) Term {
 	switch t := term.(type) {
