@@ -13,14 +13,14 @@ $ go get github.com/SuzumiyaAoba/fubuki
 The grammar of λ-expressions in Fubuki is following (not correct, but enough).
 
 ```
-<expr>  := <term> | <def>
+<expr>  := (<term> | <def>) ';'
 <term>  := <var> | <abs> | <app> | '('<term>')'
 <ident> := [#0-9a-zA-Z_][0-9a-zA-Z_]*
 <var>   := <ident>
 <vars>  := <var> <vars>*
 <abs>   := '\'<vars>'.'<term>
 <app>   := <term> <term>
-<def>   := <ident> ":=" <term>
+<def>   := <ident> ':=' <term>
 ```
 
 ## Evaluation strategy
