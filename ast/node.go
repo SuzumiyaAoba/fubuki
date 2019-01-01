@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"github.com/SuzumiyaAoba/fubuki/token"
-
-	"github.com/rhysd/locerr"
 )
 
 type AST struct {
@@ -13,8 +11,8 @@ type AST struct {
 }
 
 type Expr interface {
-	Pos() locerr.Pos
-	End() locerr.Pos
+	Pos() token.Pos
+	End() token.Pos
 	Name() string
 }
 
@@ -39,35 +37,35 @@ type (
 	}
 )
 
-func (e *Var) Pos() locerr.Pos {
+func (e *Var) Pos() token.Pos {
 	return e.Token.Start
 }
 
-func (e *Var) End() locerr.Pos {
+func (e *Var) End() token.Pos {
 	return e.Token.End
 }
 
-func (e *Abs) Pos() locerr.Pos {
+func (e *Abs) Pos() token.Pos {
 	return e.StartToken.Start
 }
 
-func (e *Abs) End() locerr.Pos {
+func (e *Abs) End() token.Pos {
 	return e.StartToken.End
 }
 
-func (e *App) Pos() locerr.Pos {
+func (e *App) Pos() token.Pos {
 	return e.Lexp.Pos()
 }
 
-func (e *App) End() locerr.Pos {
+func (e *App) End() token.Pos {
 	return e.Rexp.End()
 }
 
-func (e *Def) Pos() locerr.Pos {
+func (e *Def) Pos() token.Pos {
 	return e.StartToken.Start
 }
 
-func (e *Def) End() locerr.Pos {
+func (e *Def) End() token.Pos {
 	return e.StartToken.End
 }
 

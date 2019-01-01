@@ -2,28 +2,34 @@ package token
 
 import (
 	"fmt"
-
-	"github.com/rhysd/locerr"
 )
 
+// Kind は字句の種類
 type Kind int
 
 const (
+	// Illegal は不正な字句
 	Illegal Kind = iota
+	// Ident は識別子
 	Ident
+	// Lambda は `λ`
 	Lambda
+	// LParen は `(`
 	LParen
+	// RParen は `)`
 	RParen
+	// Dot は `.`
 	Dot
+	// Semicolon は `;`
 	Semicolon
+	// ColonEqual は `:=`
 	ColonEqual
+	// EOF は終端文字
 	EOF
 )
 
+// TokenTable は各字句とそれが表す文字列の対応表
 var TokenTable = [...]string{
-	"EOF",
-	"Error",
-	"Unknown",
 	"illegal token",
 	"ident",
 	"λ",
@@ -32,13 +38,16 @@ var TokenTable = [...]string{
 	".",
 	";",
 	":=",
+	"EOF",
+	"Error",
+	"Unknown",
 }
 
 type Token struct {
 	Kind  Kind
-	Start locerr.Pos
-	End   locerr.Pos
-	File  *locerr.Source
+	Start Pos
+	End   Pos
+	Src   Source
 }
 
 func (tok *Token) String() string {
@@ -51,5 +60,6 @@ func (tok *Token) String() string {
 }
 
 func (tok *Token) Value() string {
-	return string(tok.File.Code[tok.Start.Offset:tok.End.Offset])
+	code := tok.Src.Code()
+	return string(code[tok.Start.Offset:tok.End.Offset])
 }

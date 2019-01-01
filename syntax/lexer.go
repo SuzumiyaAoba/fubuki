@@ -8,8 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/SuzumiyaAoba/fubuki/token"
-
-	"github.com/rhysd/locerr"
+	"github.com/SuzumiyaAoba/fubuki/util"
 )
 
 type stateFn func(*Lexer) stateFn
@@ -18,28 +17,29 @@ const eof = -1
 
 type Lexer struct {
 	state   stateFn
-	start   locerr.Pos
-	current locerr.Pos
-	src     *locerr.Source
+	start   token.Pos
+	current token.Pos
+	src     token.Source
 	input   *bytes.Reader
 	Tokens  chan token.Token
 	top     rune
 	eof     bool
-	Error   func(msg string, pos locerr.Pos)
+	Error   func(msg string, pos token.Pos)
 }
 
-func NewLexer(src *locerr.Source) *Lexer {
-	start := locerr.Pos{
+func NewLexer(src token.Source) *Lexer {
+	start := token.Pos{
 		Offset: 0,
 		Line:   1,
 		Column: 1,
-		File:   src,
+		Src:    src,
 	}
+
 	return &Lexer{
 		state:   lex,
 		start:   start,
 		current: start,
-		input:   bytes.NewReader(src.Code),
+		input:   bytes.NewReader(src.Code()),
 		src:     src,
 		Tokens:  make(chan token.Token),
 		Error:   nil,
@@ -143,25 +143,14 @@ func (l *Lexer) errmsg(msg string) {
 	l.Error(msg, l.current)
 }
 
-func isLetter(r rune) bool {
-	return 'a' <= r && r <= 'z' ||
-		'A' <= r && r <= 'Z' ||
-		r == '_' ||
-		r >= utf8.RuneSelf && unicode.IsLetter(r)
-}
-
-func isDigit(r rune) bool {
-	return '0' <= r && r <= '9'
-}
-
 func eatIdent(l *Lexer) bool {
-	if !(isLetter(l.top) || isDigit(l.top) || l.top == '#') {
+	if !(util.IsLetter(l.top) || util.IsDigit(l.top) || l.top == '#') {
 		l.expected("letter for head character of identifer", l.top)
 		return false
 	}
 	l.eat()
 
-	for isLetter(l.top) || isDigit(l.top) {
+	for util.IsLetter(l.top) || util.IsDigit(l.top) {
 		l.eat()
 	}
 

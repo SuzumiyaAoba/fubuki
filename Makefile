@@ -1,34 +1,21 @@
 SRCS := \
 	main.go \
 	token/token.go \
-	ast/node.go \
-	ast/visitor.go \
-	ast/printer.go \
-	syntax/grammar.go \
-	syntax/lexer.go \
-	syntax/parser.go \
-	lambda/id.go \
-	lambda/alpha.go \
-	lambda/beta.go \
-	lambda/term.go \
+	syntax/lexer.go
 
-.PHONY: all parser fubuki syntax/grammar.go
+.PHONY: all fubuki
 
 all: build
 
-build: parser fubuki
-
-parser: syntax/grammar.go
+build: fubuki
 
 fubuki: $(SRCS)
 	go build;
 
-syntax/grammar.go: syntax/grammar.go.y
-	go get -u golang.org/x/tools/cmd/goyacc
-	goyacc -o syntax/grammar.go syntax/grammar.go.y
+run: build
+	./fubuki
 
 clean:
-	$(RM) syntax/grammar.go
 	$(RM) fubuki
 	$(RM) y.output
 	$(RM) -rf vendor
